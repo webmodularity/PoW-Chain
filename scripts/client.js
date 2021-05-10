@@ -1,4 +1,4 @@
-const jayson = require('jayson');
+const jayson = require('jayson/promise');
 const {PORT} = require('../config');
 
 const client = jayson.client.http({

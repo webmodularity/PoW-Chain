@@ -1,4 +1,4 @@
-const {utxos} = require('../db');
+//const {utxos} = require('../db');
 
 class Transaction {
   constructor(inputs, outputs) {
@@ -9,9 +9,9 @@ class Transaction {
     this.inputs.forEach((input) => {
       input.spent = true;
     });
-    this.outputs.forEach((output) => {
-      utxos.push(output);
-    });
+    //this.outputs.forEach((output) => {
+    //  utxos.push(output);
+    //});
   }
 }
 
