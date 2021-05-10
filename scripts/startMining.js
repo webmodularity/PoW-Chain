@@ -1,26 +1,38 @@
 const client = require('./client');
 const {argv} = require('yargs');
 const {address} = argv;
-
-const Miner = require("../models/Miner");
 const Block = require("../models/Block");
-const miner = new Miner(address);
 
 mine();
 
 async function mine() {
   while (true) {
     const miningResponse = await client.request('startMining', []);
-    const lastBlockHash = miningResponse.block ? miningResponse.block.lastBlockHash : null;
-    const newBlock = miner.mineBlock(lastBlockHash, miningResponse.targetDifficulty);
+    const newBlock = await mineBlock(miningResponse.lastBlockHash, miningResponse.targetDifficulty);
     const submittedBlock = await client.request('submitNewBlock', [newBlock, address]);
-    if (submittedBlock.lastBlock) {
-      const lastBlock = new Block(submittedBlock.lastBlock.lastBlockHash, submittedBlock.lastBlock.timestamp, submittedBlock.lastBlock.nonce, submittedBlock.lastBlock.transactions);
-      console.log(lastBlock);
-      console.log(`New Block Added! ${newBlock.hash()}`);
+    if (submittedBlock.lastBlockHash) {
+      console.log(`New Block Added! Hash: (${submittedBlock.lastBlockHash})`);
     } else {
-      console.log(`New Block Failed! ${submittedBlock.lastBlock}`)
+      console.log(`New Block Add FAILED! Stale Block not added to chain!`);
     }
-
   }
+}
+
+async function mineBlock(lastBlockHash, targetDifficultyHex) {
+  const block = new Block(lastBlockHash);
+
+  // TODO: add transactions from the mempool
+
+  //const coinbaseUTXO = new UTXO(this.publicAddress, this.blockchain.blockReward);
+  //const coinbaseTX = new Transaction([], [coinbaseUTXO]);
+  //block.addTransaction(coinbaseTX);
+  while(BigInt('0x' + block.hash()) >= BigInt('0x' + targetDifficultyHex)) {
+    block.nonce++;
+    if (block.nonce >= 2147483647) {
+      block.timestamp++;
+      block.nonce = 0;
+    }
+  }
+  block.execute();
+  return block;
 }

@@ -14,16 +14,15 @@ app.post('/', (req, res) => {
     const {method, params} = req.body;
     if(method === 'startMining') {
         res.send({
-            block: blockchain.getLastBlock(),
-            blockHeight: blockchain.blockHeight(),
+            lastBlockHash: blockchain.getLastBlock().hash(),
             targetDifficulty: blockchain.getTargetDifficulty().toString(16)
         });
         return;
     }
     if(method === 'submitNewBlock') {
-        const [newBlock, address] = params;
-        blockchain.addBlock(newBlock, address);
-        res.send({lastBlock: blockchain.getLastBlock(), error: 'Error'});
+        const [block, address] = params;
+        const lastBlockHash = blockchain.addBlock(block, address);
+        res.send({lastBlockHash: lastBlockHash});
         return;
     }
     if(method === "getBalance") {

@@ -1,6 +1,6 @@
 # Proof of Work Chain
 
-This is an example Proof of Work Chain with a client/server application.
+This is an example Proof of Work Chain with a server/miner cli interface.
 
 ## Server
 
@@ -8,17 +8,21 @@ First you'll want to start the server. You'll want to install all the dependenci
 
 Once you've installed the dependencies you can run the server with `node index` or `nodemon index` (the latter of which will restart the server if you make any changes!). This currently starts your server at port `3032` by default.
 
-## Client
+## Miner
 
-To start the client application you'll need to install [parceljs](https://parceljs.org/getting_started.html).
+Generate an address (or multiple) to assign to miner using `node scripts/generate`.
 
-Once you have done that you can navigate to the `/client` folder in a terminal and run `parcel index.html` which will start your client at port `1234` by default.
+To run a miner instance use:
+`node scripts/startMining --address=YOUR_PUBLIC_ADDRESS`
 
-## Utilities
+## Features
 
-There are some `/scripts/` which you can use as utilities for your Proof of Work chain. Inside the scripts folder you'll find a few files:
+- Server accepts connections from multiple miners using simple requests to communicate between miner/server.
+- Difficulty is adjusted by increasing/decreasing required amount of leading zeros in hash based on a target block time. Difficulty settings including desired block time, etc. are configurable with the static properties of the `Blockchain` class.
+- Miner can be run at different location than server as long as network path available.
+- Tracks hash of previous block and will not add a new block without validating previousHash.
 
-- `generate.js` - This will generate you a new public/private keypair `node generate`
-- `getBalance.js` - This will get the balance of a public key passed in from the command line: i.e. `node getBalance --address 049a1bad614bcd85b5f5c36703ebe94adbfef7af163b39a9dd3ddbc4f286820031dfcb3cd9b3d2fcbaec56ff95b0178b75d042968462fbfe3d604e02357125ded5`
-- `startMining.js` - This will start the miner on the server `node startMining`
-- `stopMining.js` - This will stop the miner on the server `node stopMining`
+## TODO
+
+- Need a way to interrupt miner that is currently mining if block already found. Current behavior is to keep mining until a solution is found and submit block to server (even if it is stale). Server should send miner a signal to trigger mining from current block.
+- Add transactions/UTXOs and implement script to getBalance for specified address.
